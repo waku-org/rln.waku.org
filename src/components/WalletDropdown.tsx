@@ -35,6 +35,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+const LINEA_PARAMS = {
+  chainId: '0xE705', // 59141 in hex
+  chainName: 'Linea Sepolia',
+  rpcUrls: ['https://rpc.sepolia.linea.build'],
+  nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
+  blockExplorerUrls: ['https://sepolia.lineascan.build'],
+};
+
 export function WalletDropdown() {
   const { isConnected, address, chainId, connectWallet, disconnectWallet, balance, wttBalance, mintWTT } = useWallet();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -67,6 +75,21 @@ export function WalletDropdown() {
   const getNetworkName = () => {
     if (chainId === 59141) return "Linea Sepolia";
     return `Unknown (${chainId})`;
+  };
+
+  const addNetwork = async () => {
+    if (!window.ethereum) {
+      alert('MetaMask is not installed.');
+      return;
+    }
+    try {
+      await window.ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [LINEA_PARAMS],
+      });
+    } catch {
+      alert('Failed to add Linea Sepolia network.');
+    }
   };
 
   if (!isConnected || !address) {
@@ -141,7 +164,26 @@ export function WalletDropdown() {
                 <Coins className="h-3.5 w-3.5" />
                 <span>ETH Balance</span>
               </div>
-              <span className="text-primary font-medium">{parseFloat(balance || '0').toFixed(4)}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-primary font-medium">{parseFloat(balance || '0').toFixed(4)}</span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5 p-0 text-muted-foreground hover:text-accent"
+                        onClick={() => window.open('https://docs.metamask.io/developer-tools/faucet/', '_blank')}
+                      >
+                        <PlusCircle className="h-3.5 w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left">
+                      <p className="font-mono text-xs">Get Testnet ETH from Linea Faucet</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
             
             <div className="flex items-center justify-between text-xs">
@@ -196,6 +238,16 @@ export function WalletDropdown() {
               </div>
             </div>
           </div>
+          {chainId !== 59141 && (
+            <Button
+              onClick={addNetwork}
+              variant="outline"
+              size="sm"
+              className="w-full flex items-center gap-2 mt-2"
+            >
+              🦊 Add Linea Sepolia Network
+            </Button>
+          )}
         </div>
         
         <DropdownMenuSeparator className="bg-terminal-border m-0" />
