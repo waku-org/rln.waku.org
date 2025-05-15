@@ -423,8 +423,6 @@ export function RLNProvider({ children }: { children: ReactNode }) {
       if (!credential) {
         throw new Error('Could not decrypt credential');
       }
-
-      
       await rln.contract.eraseMembership(credential.identity.IDCommitmentBigInt);
       return { success: true };
     } catch (err) {

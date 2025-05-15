@@ -77,7 +77,8 @@ export function MembershipDetails({ membershipInfo, copyToClipboard, hash }: Mem
   const canWithdraw = membershipInfo.state === MembershipState.ErasedAwaitsWithdrawal;
 
   // Check if membership can be erased (Active or GracePeriod)
-  const canErase = membershipInfo.state === MembershipState.Active || membershipInfo.state === MembershipState.GracePeriod;
+  const canErase = membershipInfo.state === MembershipState.Expired || membershipInfo.state === MembershipState.GracePeriod;
+  console.log(membershipInfo.state);
 
   return (
     <div className="mt-3 space-y-2 border-t border-terminal-border/40 pt-3 animate-in fade-in-50 duration-300">
