@@ -125,6 +125,12 @@ export function KeystoreProvider({ children }: { children: ReactNode }) {
       const credential = await keystore.readCredential(hash, password);
       if (credential) {
         setDecryptedCredentials(credential);
+        // Log the keystore as a JSON object
+        try {
+          console.log("Keystore (JSON):", JSON.parse(keystore.toString()));
+        } catch (e) {
+          console.warn("Failed to parse keystore to JSON for logging", e);
+        }
       }
       return credential || null;
     } catch (err) {
