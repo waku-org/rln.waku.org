@@ -202,11 +202,11 @@ export function MembershipRegistration({ tabId: _tabId }: MembershipRegistration
                     >
                       <ToggleGroupItem value="300" className="flex-1 flex flex-col items-center">
                         <span>Standard (300)</span>
-                        <span className="text-xs text-muted-foreground">lower cost</span>
+                        <span className="text-xs text-muted-foreground">lower deposit</span>
                       </ToggleGroupItem>
                       <ToggleGroupItem value="600" className="flex-1 flex flex-col items-center">
                         <span>Max (600)</span>
-                        <span className="text-xs text-muted-foreground">higher cost, more messages</span>
+                        <span className="text-xs text-muted-foreground">requires higher deposit. more messages.</span>
                       </ToggleGroupItem>
                     </ToggleGroup>
                   </div>
