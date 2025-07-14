@@ -33,6 +33,7 @@ interface RLNContextType {
   getRateLimitsBounds: () => Promise<{ success: boolean; rateMinLimit: number; rateMaxLimit: number; error?: string }>;
   saveCredentialsToKeystore: (credentials: KeystoreEntity, password: string) => Promise<string>;
   isLoading: boolean;
+  getPriceForRateLimit: (rateLimit: number) => Promise<{ price: string }>;
 }
 
 const RLNContext = createContext<RLNContextType | undefined>(undefined);
@@ -465,6 +466,20 @@ export function RLNProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const getPriceForRateLimit = async (rateLimit: number): Promise<{ price: string }> => {
+    try {
+      if (!rln || !rln.contract || !isStarted) {
+        throw new Error('RLN not initialized or contract not available');
+      }
+      const result = await rln.contract.getPriceForRateLimit(rateLimit);
+      const formatted = ethers.utils.formatUnits(result.price, 18);
+      return { price: formatted };
+    } catch (err) {
+      console.error('Error getting price for rate limit:', err);
+      throw err;
+    }
+  };
+
   return (
     <RLNContext.Provider
       value={{
@@ -483,7 +498,8 @@ export function RLNProvider({ children }: { children: ReactNode }) {
         getCurrentRateLimit,
         getRateLimitsBounds,
         saveCredentialsToKeystore: saveToKeystore,
-        isLoading
+        isLoading,
+        getPriceForRateLimit
       }}
     >
       {children}
