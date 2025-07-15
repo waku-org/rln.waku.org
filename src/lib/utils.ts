@@ -14,4 +14,4 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function hslToVar(hsl: string): string {
   return `hsl(var(${hsl}))`;
-} 
+}

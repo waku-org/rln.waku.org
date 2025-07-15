@@ -5,6 +5,7 @@ import { ethers } from 'ethers';
 import { MembershipState } from '@waku/rln';
 import { useRLN } from '../contexts/rln/RLNContext';
 import { toast } from 'sonner';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './ui/tooltip';
 
 interface MembershipDetailsProps {
   membershipInfo: {
@@ -177,7 +178,21 @@ export function MembershipDetails({ membershipInfo, copyToClipboard, hash }: Mem
           </div>
           <div>
             <span className="text-muted-foreground text-xs">Rate Limit:</span>
-            <div className="text-accent">{membershipInfo.rateLimit} msg/epoch</div>
+            <div className="text-accent flex items-center gap-1">
+              {membershipInfo.rateLimit} msg/epoch
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="ml-1 cursor-pointer align-middle inline-flex items-center justify-center">
+                      <span className="w-4 h-4 rounded-full border border-muted-foreground text-muted-foreground flex items-center justify-center text-xs font-bold" style={{ fontFamily: 'monospace' }}>i</span>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    1 epoch = 10 minutes
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
 
           {/* Contract Info */}

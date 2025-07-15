@@ -36,7 +36,7 @@ export function RLNStatusIndicator() {
   const getStatusText = () => {
     if (error) return 'Error';
     if (isLoading) return 'Initializing RLN...';
-    if (!isConnected) return 'Connect Wallet';
+    if (!isConnected) return 'Wallet Not Connected';
     if (chainId !== 59141) return 'Switch to Linea Sepolia';
     if (isInitialized && isStarted) return 'RLN Active';
     return 'RLN Inactive';

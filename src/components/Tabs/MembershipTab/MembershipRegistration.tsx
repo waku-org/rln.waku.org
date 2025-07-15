@@ -6,21 +6,22 @@ import { KeystoreEntity } from '@waku/rln';
 import { useRLN } from '../../../contexts/rln/RLNContext';
 import { useWallet } from '../../../contexts/wallet';
 import { TerminalWindow } from '../../ui/terminal-window';
-import { Slider } from '../../ui/slider';
+import { ToggleGroup, ToggleGroupItem } from '../../ui/toggle-group';
 import { Button } from '../../ui/button';
 import { membershipRegistration, type ContentSegment } from '../../../content/index';
 import { toast } from 'sonner';
-
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '../../ui/tooltip';
 interface MembershipRegistrationProps {
   tabId?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function MembershipRegistration({ tabId: _tabId }: MembershipRegistrationProps) {
-  const { registerMembership, isInitialized, isStarted, rateMinLimit, rateMaxLimit, error, isLoading } = useRLN();
+  const { registerMembership, isInitialized, isStarted, error, isLoading, getPriceForRateLimit } = useRLN();
   const { isConnected, chainId } = useWallet();
 
-  const [rateLimit, setRateLimit] = useState<number>(rateMinLimit);
+  // Replace slider state with discrete options
+  const [rateLimit, setRateLimit] = useState<number>(300); // Default to Standard
   const [isRegistering, setIsRegistering] = useState(false);
   const [saveToKeystore, setSaveToKeystore] = useState(true);
   const [keystorePassword, setKeystorePassword] = useState('');
@@ -34,6 +35,33 @@ export function MembershipRegistration({ tabId: _tabId }: MembershipRegistration
   }>({});
 
   const isLineaSepolia = chainId === 59141;
+
+  const [price, setPrice] = useState<string>('');
+  const [priceLoading, setPriceLoading] = useState(false);
+  const [priceError, setPriceError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isLoading || !isInitialized || !isStarted ) return;
+    let cancelled = false;
+    setPrice('');
+    setPriceError(null);
+    setPriceLoading(true);
+    (async () => {
+      try {
+        const result = await getPriceForRateLimit(rateLimit);
+        if (!cancelled) {
+          setPrice(result.price.toString());
+        }
+      } catch {
+        if (!cancelled) {
+          setPriceError('Could not fetch price');
+        }
+      } finally {
+        if (!cancelled) setPriceLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [rateLimit, getPriceForRateLimit, isLoading, isInitialized, isStarted]);
 
   useEffect(() => {
     if (error) {
@@ -172,22 +200,51 @@ export function MembershipRegistration({ tabId: _tabId }: MembershipRegistration
                 <div>
                   <label 
                     htmlFor="rateLimit" 
-                    className="block text-sm font-mono text-muted-foreground mb-2"
+                    className="block text-sm font-mono text-muted-foreground mb-2 flex items-center gap-1"
                   >
-                    {membershipRegistration.form.rateLimitLabel}
+                    Rate Limit (messages per epoch)
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="ml-1 cursor-pointer align-middle inline-flex items-center justify-center">
+                            {/* Unicode info icon, styled */}
+                            <span className="w-4 h-4 rounded-full border border-muted-foreground text-muted-foreground flex items-center justify-center text-xs font-bold" style={{ fontFamily: 'monospace' }}>i</span>
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          1 epoch = 10 minutes
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </label>
                   <div className="flex items-center space-x-4 py-2">
-                    <Slider
-                      id="rateLimit"
-                      min={rateMinLimit}
-                      max={rateMaxLimit}
-                      value={[rateLimit]}
-                      onValueChange={(value) => setRateLimit(value[0])}
+                    <ToggleGroup
+                      type="single"
+                      value={String(rateLimit)}
+                      onValueChange={(value) => {
+                        if (value === '300' || value === '600') setRateLimit(Number(value));
+                      }}
                       className="w-full"
-                    />
-                    <span className="text-sm text-muted-foreground w-12 font-mono">
-                      {rateLimit}
-                    </span>
+                    >
+                      <ToggleGroupItem value="300" className="flex-1 flex flex-col items-center">
+                        <span>Standard (300)</span>
+                        <span className="text-xs text-muted-foreground">lower token spend.</span>
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="600" className="flex-1 flex flex-col items-center">
+                        <span>Max (600)</span>
+                        <span className="text-xs text-muted-foreground">higher token spend. more messages.</span>
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                  </div>
+                  {/* Show calculated token spend for selected rate limit */}
+                  <div className="text-xs text-muted-foreground font-mono mt-1">
+                    {priceLoading ? (
+                      <>Token spend required: <span className="italic">Loading...</span></>
+                    ) : priceError ? (
+                      <>Token spend required: <span className="text-destructive">{priceError}</span></>
+                    ) : (
+                      <>Token spend required: <span>{price}</span> WTT</>
+                    )}
                   </div>
                 </div>
 
