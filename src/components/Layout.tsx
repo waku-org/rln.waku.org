@@ -13,6 +13,10 @@ const tabs = [
     id: 'keystore',
     label: 'Keystore Management',
   },
+  {
+    id: 'runNode',
+    label: 'Run a Node',
+  },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {

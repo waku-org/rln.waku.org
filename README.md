@@ -58,14 +58,6 @@ If you encounter an "ERC20: insufficient allowance" error, it means the token ap
 1. Waku Testnet Tokens: 0x185A0015aC462a0aECb81beCc0497b649a64B9ea
 2. RLN Registration Contract: 0xB9cd878C90E49F797B4431fBF4fb333108CB90e6
 
-## TODO
-- [ ] add info about using with nwaku/nwaku-compose/waku-simulator
-- [x] fix rate limit fetch
-- [ ] fix membership management methods
-- [ ] define epoch / quanity epoch
-- [x] alias for individual credentials
-- [x] remove export keystore method (if >1 credentials in keystore)
-
 ## CI/CD
 
 PRs should be made for `develop` branch and `master` should be [rebased](https://git-scm.com/book/en/v2/Git-Branching-Rebasing) on `develop` once changes are verified.
