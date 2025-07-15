@@ -6,10 +6,6 @@ import { TerminalWindow } from '@/components/ui/terminal-window';
 import { toast } from '@/components/ui/toast';
 import { Copy } from 'lucide-react';
 
-interface RunNodeTabProps {
-  tabId?: string;
-}
-
 function CodeBlock({ code }: { code: string }) {
   const handleCopy = () => {
     navigator.clipboard.writeText(code);
@@ -35,7 +31,7 @@ function CodeBlock({ code }: { code: string }) {
   );
 }
 
-export default function RunNodeTab({ tabId: _tabId }: RunNodeTabProps) {
+export default function RunNodeTab({ tabId }: { tabId: string }) {
   const {
     hasStoredCredentials,
     storedCredentialsHashes,
@@ -75,7 +71,7 @@ export default function RunNodeTab({ tabId: _tabId }: RunNodeTabProps) {
   };
 
   return (
-    <div className="space-y-8 p-4">
+    <div className="space-y-8 p-4" id={tabId}>
       <TerminalWindow title="Run a Node" className="mb-8">
         <h2 className="text-lg font-mono font-medium mb-6">How to Run a Waku Node</h2>
         <ol className="space-y-8 list-decimal ml-6">
