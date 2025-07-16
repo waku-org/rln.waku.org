@@ -228,24 +228,32 @@ export function MembershipRegistration({ tabId: _tabId }: MembershipRegistration
                     >
                       <ToggleGroupItem value="300" className="flex-1 flex flex-col items-center">
                         <span>Standard (300)</span>
-                        <span className="text-xs text-muted-foreground">lower token spend.</span>
+                        <span className="text-xs text-muted-foreground">
+                          {priceLoading ? (
+                            <span className="italic">Loading...</span>
+                          ) : priceError ? (
+                            <span className="text-destructive">{priceError}</span>
+                          ) : (
+                            <>{rateLimit === 300 && <>Token spend: {price} WTT</>}</>
+                          )}
+                        </span>
                       </ToggleGroupItem>
                       <ToggleGroupItem value="600" className="flex-1 flex flex-col items-center">
                         <span>Max (600)</span>
-                        <span className="text-xs text-muted-foreground">higher token spend. more messages.</span>
+                        <span className="text-xs text-muted-foreground">
+                          {priceLoading ? (
+                            <span className="italic">Loading...</span>
+                          ) : priceError ? (
+                            <span className="text-destructive">{priceError}</span>
+                          ) : (
+                            <>{rateLimit === 600 && <>Token spend: {price} WTT</>}</>
+                          )}
+                        </span>
                       </ToggleGroupItem>
                     </ToggleGroup>
                   </div>
                   {/* Show calculated token spend for selected rate limit */}
-                  <div className="text-xs text-muted-foreground font-mono mt-1">
-                    {priceLoading ? (
-                      <>Token spend required: <span className="italic">Loading...</span></>
-                    ) : priceError ? (
-                      <>Token spend required: <span className="text-destructive">{priceError}</span></>
-                    ) : (
-                      <>Token spend required: <span>{price}</span> WTT</>
-                    )}
-                  </div>
+                  {/* Removed redundant price display below, now shown in each ToggleGroupItem */}
                 </div>
 
                 <div className="space-y-2">
