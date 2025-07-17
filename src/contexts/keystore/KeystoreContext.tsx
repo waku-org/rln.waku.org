@@ -172,7 +172,7 @@ export function KeystoreProvider({ children }: { children: ReactNode }) {
       }
       
       // If password is verified, export the entire keystore
-      const filename = 'waku-rln-keystore.json';
+      const filename = 'keystore.json';
       const blob = new Blob([keystore.toString()], { type: 'application/json' });
       
       const url = URL.createObjectURL(blob);
