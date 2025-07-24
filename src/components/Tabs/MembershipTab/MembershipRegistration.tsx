@@ -36,21 +36,28 @@ export function MembershipRegistration({ tabId: _tabId }: MembershipRegistration
 
   const isLineaSepolia = chainId === 59141;
 
-  const [price, setPrice] = useState<string>('');
+  // Store prices for both rate limits
+  const [prices, setPrices] = useState<{ [key: number]: string }>({});
   const [priceLoading, setPriceLoading] = useState(false);
   const [priceError, setPriceError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isLoading || !isInitialized || !isStarted ) return;
+    if (isLoading || !isInitialized || !isStarted) return;
     let cancelled = false;
-    setPrice('');
+    setPrices({});
     setPriceError(null);
     setPriceLoading(true);
     (async () => {
       try {
-        const result = await getPriceForRateLimit(rateLimit);
+        const [price300, price600] = await Promise.all([
+          getPriceForRateLimit(300),
+          getPriceForRateLimit(600),
+        ]);
         if (!cancelled) {
-          setPrice(result.price.toString());
+          setPrices({
+            300: price300.price.toString(),
+            600: price600.price.toString(),
+          });
         }
       } catch {
         if (!cancelled) {
@@ -61,7 +68,7 @@ export function MembershipRegistration({ tabId: _tabId }: MembershipRegistration
       }
     })();
     return () => { cancelled = true; };
-  }, [rateLimit, getPriceForRateLimit, isLoading, isInitialized, isStarted]);
+  }, [getPriceForRateLimit, isLoading, isInitialized, isStarted]);
 
   useEffect(() => {
     if (error) {
@@ -234,7 +241,7 @@ export function MembershipRegistration({ tabId: _tabId }: MembershipRegistration
                           ) : priceError ? (
                             <span className="text-destructive">{priceError}</span>
                           ) : (
-                            <>{rateLimit === 300 && <>Token spend: {price} WTT</>}</>
+                            <>Token spend: {prices[300] ?? "--"} WTT</>
                           )}
                         </span>
                       </ToggleGroupItem>
@@ -246,14 +253,12 @@ export function MembershipRegistration({ tabId: _tabId }: MembershipRegistration
                           ) : priceError ? (
                             <span className="text-destructive">{priceError}</span>
                           ) : (
-                            <>{rateLimit === 600 && <>Token spend: {price} WTT</>}</>
+                            <>Token spend: {prices[600] ?? "--"} WTT</>
                           )}
                         </span>
                       </ToggleGroupItem>
                     </ToggleGroup>
                   </div>
-                  {/* Show calculated token spend for selected rate limit */}
-                  {/* Removed redundant price display below, now shown in each ToggleGroupItem */}
                 </div>
 
                 <div className="space-y-2">

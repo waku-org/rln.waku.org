@@ -750,9 +750,9 @@
   integrity sha512-rONPWMC7PeExE077uLE4oqWrZ1IvAfz3oH9LibVAcVCopJiA9R62uavnbEzdkVmJYI6M6Zgkbeb07+tWjlq2XA==
 
 "@noble/curves@^1.9.1":
-  version "1.9.2"
-  resolved "https://registry.npmjs.org/@noble/curves/-/curves-1.9.2.tgz"
-  integrity sha512-HxngEd2XUcg9xi20JkwlLCtYwfoFw4JGkuZpT+WlsPD4gB/cxkvTD8fSsoAnphGZhFdZYKeQIPCuFlWPm1uE0g==
+  version "1.9.4"
+  resolved "https://registry.npmjs.org/@noble/curves/-/curves-1.9.4.tgz"
+  integrity sha512-2bKONnuM53lINoDrSmK8qP8W271ms7pygDhZt4SiLOoLwBtoHqeCFi6RG42V8zd3mLHuJFhU/Bmaqo4nX0/kBw==
   dependencies:
     "@noble/hashes" "1.8.0"
 
@@ -1440,17 +1440,17 @@
   resolved "https://registry.npmjs.org/@unrs/resolver-binding-darwin-arm64/-/resolver-binding-darwin-arm64-1.5.0.tgz"
   integrity sha512-YmocNlEcX/AgJv8gI41bhjMOTcKcea4D2nRIbZj+MhRtSH5+vEU8r/pFuTuoF+JjVplLsBueU+CILfBPVISyGQ==
 
-"@waku/core@0.0.37-987c6cd.0":
-  version "0.0.37-987c6cd.0"
-  resolved "https://registry.npmjs.org/@waku/core/-/core-0.0.37-987c6cd.0.tgz"
-  integrity sha512-w3F/dzY/YA5T3l62YKKcza3fMLZNzprupoKScvtpWS8VymLIGZCMhzcKOij4lt6SWzHWyTEMa9qtcB6tZPIC+A==
+"@waku/core@0.0.38-e224c05.0":
+  version "0.0.38-e224c05.0"
+  resolved "https://registry.npmjs.org/@waku/core/-/core-0.0.38-e224c05.0.tgz"
+  integrity sha512-VtRfwF6WGj3HhB4cywiit3KcrHYtUtoD1wjAviO8b4AzH9LbtV7NmYvGIy5ac9sOpRQEUNagOFT6+oXu7Ay+HQ==
   dependencies:
     "@libp2p/ping" "2.0.35"
     "@noble/hashes" "^1.3.2"
-    "@waku/enr" "0.0.31-987c6cd.0"
-    "@waku/interfaces" "0.0.32-987c6cd.0"
-    "@waku/proto" "0.0.12-987c6cd.0"
-    "@waku/utils" "0.0.25-987c6cd.0"
+    "@waku/enr" "0.0.32-e224c05.0"
+    "@waku/interfaces" "0.0.33-e224c05.0"
+    "@waku/proto" "0.0.13-e224c05.0"
+    "@waku/utils" "0.0.26-e224c05.0"
     debug "^4.3.4"
     it-all "^3.0.4"
     it-length-prefixed "^9.0.4"
@@ -1458,42 +1458,42 @@
     uint8arraylist "^2.4.3"
     uuid "^9.0.0"
 
-"@waku/enr@0.0.31-987c6cd.0":
-  version "0.0.31-987c6cd.0"
-  resolved "https://registry.npmjs.org/@waku/enr/-/enr-0.0.31-987c6cd.0.tgz"
-  integrity sha512-nStUXohULcatKLxCyzU7JJK2gKhMXYEAdN90uL1Ggl4tKA9uUrQ2YZC/WB61RmucnDlFNH6phFv47/WbARhhVA==
+"@waku/enr@0.0.32-e224c05.0":
+  version "0.0.32-e224c05.0"
+  resolved "https://registry.npmjs.org/@waku/enr/-/enr-0.0.32-e224c05.0.tgz"
+  integrity sha512-f+DEugomxeDgCylxv2xm6eLIJBB76dctB4B/d0zUMld26zjBozRKUsaNn8DOWRT5f44WzyP+5gRqbTm4e/qsMw==
   dependencies:
     "@ethersproject/rlp" "^5.7.0"
     "@libp2p/crypto" "5.1.6"
     "@libp2p/peer-id" "5.1.7"
     "@multiformats/multiaddr" "^12.0.0"
     "@noble/secp256k1" "^1.7.1"
-    "@waku/utils" "0.0.25-987c6cd.0"
+    "@waku/utils" "0.0.26-e224c05.0"
     debug "^4.3.4"
     js-sha3 "^0.9.2"
 
-"@waku/interfaces@0.0.32-987c6cd.0":
-  version "0.0.32-987c6cd.0"
-  resolved "https://registry.npmjs.org/@waku/interfaces/-/interfaces-0.0.32-987c6cd.0.tgz"
-  integrity sha512-7dfGDx1bs+rs1nlMwAZYd0Di4gLyD9cWR0ApDJ+I0sU3enn1NT6hM1U3cp+LE6xqxXUoe2tfQi/4QhrECaGypQ==
+"@waku/interfaces@0.0.33-e224c05.0":
+  version "0.0.33-e224c05.0"
+  resolved "https://registry.npmjs.org/@waku/interfaces/-/interfaces-0.0.33-e224c05.0.tgz"
+  integrity sha512-8GH7Tg0t74R32NqQHVm0ttVPb26Cvn/p+Iiht3mha8gGHQVkYYYyECXfZYAQ9pld3y0GB+yqpn5EiZiTNs3AOQ==
 
-"@waku/proto@0.0.12-987c6cd.0":
-  version "0.0.12-987c6cd.0"
-  resolved "https://registry.npmjs.org/@waku/proto/-/proto-0.0.12-987c6cd.0.tgz"
-  integrity sha512-B0u7Qkm/U6mH0ZCGYvRfg4d44JboscYBmXifeOTwY0i4QH8nvrZcPIIsUqvNmzT2CjrAwpt8H+98fGp9l4fKow==
+"@waku/proto@0.0.13-e224c05.0":
+  version "0.0.13-e224c05.0"
+  resolved "https://registry.npmjs.org/@waku/proto/-/proto-0.0.13-e224c05.0.tgz"
+  integrity sha512-zvIGhAECY1v691tWnyiFcUAPvd06itXRq9BggN5Nwq+TKMl9XOL6+kHuTzovvn1PM9ajRyoP3zbqT1musxeixQ==
   dependencies:
     protons-runtime "^5.4.0"
 
-"@waku/rln@0.1.7-987c6cd.0":
-  version "0.1.7-987c6cd.0"
-  resolved "https://registry.npmjs.org/@waku/rln/-/rln-0.1.7-987c6cd.0.tgz"
-  integrity sha512-6w/17WpD7jdw5LyM6OX0c2mMxW3cRrXG7wxi7PzhoSb2celNWZYhnPR9UK+rgsP5opoBDXD7LAyaEEqA3afbgA==
+"@waku/rln@0.1.8-e224c05.0":
+  version "0.1.8-e224c05.0"
+  resolved "https://registry.npmjs.org/@waku/rln/-/rln-0.1.8-e224c05.0.tgz"
+  integrity sha512-9uSP1ARwOdpGHJ9LIpNdNo03/q60YYYuDGCX+fPfrDFooWjxvIn0+G1TzxUgJLLP6g7stxaWj+iKCCktNFpxZQ==
   dependencies:
     "@chainsafe/bls-keystore" "3.0.0"
     "@noble/hashes" "^1.2.0"
-    "@waku/core" "0.0.37-987c6cd.0"
-    "@waku/utils" "0.0.25-987c6cd.0"
-    "@waku/zerokit-rln-wasm" "^0.0.13"
+    "@waku/core" "0.0.38-e224c05.0"
+    "@waku/utils" "0.0.26-e224c05.0"
+    "@waku/zerokit-rln-wasm" "^0.2.1"
     chai "^5.1.2"
     chai-as-promised "^8.0.1"
     chai-spies "^1.1.0"
@@ -1504,21 +1504,21 @@
     sinon "^19.0.2"
     uuid "^11.0.5"
 
-"@waku/utils@0.0.25-987c6cd.0":
-  version "0.0.25-987c6cd.0"
-  resolved "https://registry.npmjs.org/@waku/utils/-/utils-0.0.25-987c6cd.0.tgz"
-  integrity sha512-HaYkDnVtpfmsXfDBd0gB63CxidIeE9gKMRMCaaywy6W07HK32ZgMgnD/BoPbaREa4BpEZELvW3qbYUydm3AKzw==
+"@waku/utils@0.0.26-e224c05.0":
+  version "0.0.26-e224c05.0"
+  resolved "https://registry.npmjs.org/@waku/utils/-/utils-0.0.26-e224c05.0.tgz"
+  integrity sha512-eleBm6L5ky5xKRoCMXfFhLmvyGix8dhOXtDIS8/lIr+CJ09cDQoAHhhpPsJnLmf8DRxYQ1PDqPsEet9sa2LT9Q==
   dependencies:
     "@noble/hashes" "^1.3.2"
-    "@waku/interfaces" "0.0.32-987c6cd.0"
+    "@waku/interfaces" "0.0.33-e224c05.0"
     chai "^4.3.10"
     debug "^4.3.4"
     uint8arrays "^5.0.1"
 
-"@waku/zerokit-rln-wasm@^0.0.13":
-  version "0.0.13"
-  resolved "https://registry.npmjs.org/@waku/zerokit-rln-wasm/-/zerokit-rln-wasm-0.0.13.tgz"
-  integrity sha512-x7CRIIslmfCmTZc7yVp3dhLlKeLUs8ILIm9kv7+wVJ23H4pPw0Z+uH0ueLIYYfwODI6fDiwJj3S1vdFzM8D1zA==
+"@waku/zerokit-rln-wasm@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.npmjs.org/@waku/zerokit-rln-wasm/-/zerokit-rln-wasm-0.2.1.tgz"
+  integrity sha512-2Xp7e92y4qZpsiTPGBSVr4gVJ9mJTLaudlo0DQxNpxJUBtoJKpxdH5xDCQDiorbkWZC2j9EId+ohhxHO/xC1QQ==
 
 abort-error@^1.0.1:
   version "1.0.1"
@@ -1764,14 +1764,14 @@ binary-extensions@^2.0.0:
   integrity sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==
 
 bn.js@^4.11.9:
-  version "4.12.1"
-  resolved "https://registry.npmjs.org/bn.js/-/bn.js-4.12.1.tgz"
-  integrity sha512-k8TVBiPkPJT9uHLdOKfFpqcfprwBFOAAXXozRubr7R7PfIuKvQlzcI4M0pALeqXN09vdaMbUdUj+pass+uULAg==
+  version "4.12.2"
+  resolved "https://registry.npmjs.org/bn.js/-/bn.js-4.12.2.tgz"
+  integrity sha512-n4DSx829VRTRByMRGdjQ9iqsN0Bh4OolPsFnaZBLcbi8iXcB+kJ9s7EnRt4wILZNV3kPLHkRVfOc/HvhC3ovDw==
 
 bn.js@^5.2.1:
-  version "5.2.1"
-  resolved "https://registry.npmjs.org/bn.js/-/bn.js-5.2.1.tgz"
-  integrity sha512-eXRvHzWyYPBuB4NBy0cmYQjGitUrtqwbvlzP3G6VFnNRbsZQIxQ10PbKKHt8gZ/HW/D/747aDl+QkDqg3KQLMQ==
+  version "5.2.2"
+  resolved "https://registry.npmjs.org/bn.js/-/bn.js-5.2.2.tgz"
+  integrity sha512-v2YAxEmKaBLahNwE1mjp4WON6huMNeuDvagFZW+ASCuA/ku0bXR9hSMw0XpiqMoA3+rmnyck/tPRSFQkoC9Cuw==
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -4300,9 +4300,9 @@ queue-microtask@^1.2.2:
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
 
 race-event@^1.3.0:
-  version "1.6.0"
-  resolved "https://registry.npmjs.org/race-event/-/race-event-1.6.0.tgz"
-  integrity sha512-hXkk3CDepWELBG2MsT/zIiTbjNNucMo49vwZEdjChJlxJivc8fWIu/Gh/4vEJdWsHDmnGCC6++ftP2Afep6RUg==
+  version "1.6.1"
+  resolved "https://registry.npmjs.org/race-event/-/race-event-1.6.1.tgz"
+  integrity sha512-vi7WH5g5KoTFpu2mme/HqZiWH14XSOtg5rfp6raBskBHl7wnmy3F/biAIyY5MsK+BHWhoPhxtZ1Y2R7OHHaWyQ==
   dependencies:
     abort-error "^1.0.1"
 
