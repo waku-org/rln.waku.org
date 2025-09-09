@@ -5,19 +5,8 @@ import { useRLN } from '../contexts';
 import { useWallet } from '../contexts';
 
 export function RLNStatusIndicator() {
-  const { isInitialized, isStarted, isLoading, error, rln } = useRLN();
+  const { isInitialized, isStarted, isLoading, error } = useRLN();
   const { isConnected, chainId } = useWallet();
-
-  // Debug logging
-  console.log('RLN Status:', {
-    isConnected,
-    chainId,
-    isInitialized,
-    isStarted,
-    isLoading,
-    error,
-    rln
-  });
 
   const getStatusColor = () => {
     if (error) return 'bg-red-500 shadow-[0_0_8px_0_rgba(239,68,68,0.6)]';

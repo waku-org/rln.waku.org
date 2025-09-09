@@ -35,6 +35,7 @@ function CodeBlock({ code }: { code: string }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function RunNodeTab({ tabId: _tabId }: RunNodeTabProps) {
   const {
     hasStoredCredentials,
