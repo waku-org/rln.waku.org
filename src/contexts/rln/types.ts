@@ -1,7 +1,7 @@
-import { DecryptedCredentials, RLNCredentialsManager, RLNInstance } from "@waku/rln";
+import { DecryptedCredentials, RLNInstance } from "@waku/rln";
 
 export interface RLNContextType {
-    rln: RLNInstance | RLNCredentialsManager | null;
+    rln: RLNInstance | null;
     isInitialized: boolean;
     isStarted: boolean;
     error: string | null;

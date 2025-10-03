@@ -1,3 +1,5 @@
+import { RLN_REGISTRATION_CONTRACT_ADDRESS } from '../contracts/constants';
+
 export type ContentSegment = {
   type: 'text' | 'link';
   content: string;
@@ -20,7 +22,7 @@ export const membershipRegistration = {
     ],
     [
       { type: 'text', content: 'This application is configured to use the ' },
-      { type: 'link', content: 'Linea Sepolia', url: 'https://sepolia.lineascan.build/address/0xb9cd878c90e49f797b4431fbf4fb333108cb90e6' },
+      { type: 'link', content: 'Linea Sepolia', url: `https://sepolia.lineascan.build/address/${RLN_REGISTRATION_CONTRACT_ADDRESS.toLowerCase()}` },
       { type: 'text', content: ' testnet for RLN registrations.' }
     ],
     [
