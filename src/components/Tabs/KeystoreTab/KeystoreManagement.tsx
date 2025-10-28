@@ -10,7 +10,6 @@ import { Button } from '../../ui/button';
 import { Copy, Eye, Download, Trash2, ArrowDownToLine, Pencil, Check, X } from 'lucide-react';
 import { KeystoreExporter } from '../../KeystoreExporter';
 import { keystoreManagement, type ContentSegment } from '../../../content/index';
-import { ethers } from 'ethers';
 import { toast } from 'sonner';
 import { CredentialDetails } from '@/components/CredentialDetails';
 import { MembershipDetails } from '@/components/MembershipDetails';
@@ -25,7 +24,7 @@ interface ExtendedMembershipInfo extends Omit<MembershipInfo, 'state'> {
   startBlock: number;
   endBlock: number;
   state: MembershipState;
-  depositAmount: ethers.BigNumber;
+  depositAmount: bigint;
   activeDuration: number;
   gracePeriodDuration: number;
   holder: string;

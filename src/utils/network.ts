@@ -1,6 +1,6 @@
 "use client";
 
-import { ethers } from 'ethers';
+import { WalletClient } from 'viem';
 import { WAKU_TESTNET_TOKEN_ADDRESS } from '../contracts/constants';
 
 // Linea Sepolia configuration
@@ -18,9 +18,9 @@ export interface EthereumProvider {
 }
 
 // Function to ensure the wallet is connected to Linea Sepolia network
-export const ensureLineaSepoliaNetwork = async (signer?: ethers.Signer): Promise<boolean> => {
+export const ensureLineaSepoliaNetwork = async (walletClient?: WalletClient): Promise<boolean> => {
   try {
-    const currentChainId = await signer?.getChainId();
+    const currentChainId = walletClient?.chain?.id;
     console.log("Current network chain ID:", currentChainId);
     
     // Check if already on Linea Sepolia
@@ -95,12 +95,36 @@ export const ensureLineaSepoliaNetwork = async (signer?: ethers.Signer): Promise
   }
 };
 
-// ERC20 ABI for token operations
+// ERC20 ABI for token operations (viem format)
 export const ERC20_ABI = [
-  "function allowance(address owner, address spender) view returns (uint256)",
-  "function approve(address spender, uint256 amount) returns (bool)",
-  "function balanceOf(address account) view returns (uint256)"
-];
+  {
+    name: 'allowance',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { name: 'owner', type: 'address' },
+      { name: 'spender', type: 'address' }
+    ],
+    outputs: [{ type: 'uint256' }]
+  },
+  {
+    name: 'approve',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'spender', type: 'address' },
+      { name: 'amount', type: 'uint256' }
+    ],
+    outputs: [{ type: 'bool' }]
+  },
+  {
+    name: 'balanceOf',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: 'account', type: 'address' }],
+    outputs: [{ type: 'uint256' }]
+  }
+] as const;
 
 // Message for signing to generate identity
 export const SIGNATURE_MESSAGE = "Sign this message to generate your RLN credentials"; 
