@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { extractMetaMaskSigner } from '@waku/rln';
-import { ethers } from 'ethers';
+import { createViemClientFromWindow } from '@waku/rln';
+import { WalletClient, PublicActions, formatUnits, parseUnits } from 'viem';
 import { WalletContextType } from './types';
 import { WAKU_TESTNET_TOKEN_ABI } from '../../contracts/waku_testnet_token_abi';
 import { WAKU_TESTNET_TOKEN_ADDRESS } from '../../contracts/constants';
@@ -13,18 +13,22 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined);
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
+  const [signer, setSigner] = useState<WalletClient & PublicActions | null>(null);
   const [balance, setBalance] = useState<string | null>(null);
   const [wttBalance, setWttBalance] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Function to fetch WTT token balance
-  const fetchWttBalance = useCallback(async (userAddress: string, provider: ethers.providers.Provider) => {
+  const fetchWttBalance = useCallback(async (userAddress: `0x${string}`, client: PublicActions) => {
     try {
-      const tokenContract = new ethers.Contract(WAKU_TESTNET_TOKEN_ADDRESS, WAKU_TESTNET_TOKEN_ABI, provider);
-      const balance = await tokenContract.balanceOf(userAddress);
-      const formattedBalance = ethers.utils.formatUnits(balance, 18); // Assuming 18 decimals for the token
+      const balance = await client.readContract({
+        address: WAKU_TESTNET_TOKEN_ADDRESS as `0x${string}`,
+        abi: WAKU_TESTNET_TOKEN_ABI,
+        functionName: 'balanceOf',
+        args: [userAddress],
+      }) as bigint;
+      const formattedBalance = formatUnits(balance, 18); // Assuming 18 decimals for the token
       setWttBalance(formattedBalance);
     } catch (err) {
       console.error('Error fetching WTT balance:', err);
@@ -42,22 +46,24 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     try {
       toast.loading('Minting WTT tokens...');
       
-      const tokenContract = new ethers.Contract(
-        WAKU_TESTNET_TOKEN_ADDRESS, 
-        WAKU_TESTNET_TOKEN_ABI, 
-        signer
-      );
-      
       // Convert amount to wei (assuming 18 decimals)
-      const amountInWei = ethers.utils.parseUnits(amount.toString(), 18);
+      const amountInWei = parseUnits(amount.toString(), 18);
       
       // Call the mint function
-      const tx = await tokenContract.mint(address, amountInWei);
-      await tx.wait();
+      const hash = await signer.writeContract({
+        address: WAKU_TESTNET_TOKEN_ADDRESS as `0x${string}`,
+        abi: WAKU_TESTNET_TOKEN_ABI,
+        functionName: 'mint',
+        args: [address as `0x${string}`, amountInWei],
+        chain: signer.chain,
+        account: address as `0x${string}`,
+      });
+      
+      // Wait for the transaction receipt
+      await signer.waitForTransactionReceipt({ hash });
       
       // Refresh the balance
-      const provider = signer.provider as ethers.providers.Web3Provider;
-      await fetchWttBalance(address, provider);
+      await fetchWttBalance(address as `0x${string}`, signer);
       
       toast.dismiss();
       toast.success(`Successfully minted ${amount} WTT tokens`);
@@ -84,22 +90,21 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const connectWallet = useCallback(async () => {
     try {
       setError(null);
-      const signer = await extractMetaMaskSigner();
+      const signer = await createViemClientFromWindow();
       setSigner(signer);
       
-      const address = await signer.getAddress();
+      const [address] = await signer.getAddresses();
       setAddress(address);
       
-      const provider = signer.provider as ethers.providers.Web3Provider;
-      const network = await provider.getNetwork();
-      setChainId(network.chainId);
+      const chain = await signer.getChainId();
+      setChainId(chain);
       
-      const balanceWei = await provider.getBalance(address);
-      const balanceEth = ethers.utils.formatEther(balanceWei);
+      const balanceWei = await signer.getBalance({ address });
+      const balanceEth = formatUnits(balanceWei, 18);
       setBalance(balanceEth);
       
       // Fetch WTT token balance
-      await fetchWttBalance(address, provider);
+      await fetchWttBalance(address, signer);
       
       setIsConnected(true);
     } catch (err) {

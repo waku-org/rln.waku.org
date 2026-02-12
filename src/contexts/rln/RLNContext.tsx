@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { KeystoreEntity, MembershipInfo, RLNInstance, createRLN } from '@waku/rln';
-import { ethers } from 'ethers';
+import { KeystoreEntity, MembershipInfo, RLNInstance, createRLN, createViemClientFromWindow } from '@waku/rln';
+import { formatUnits, parseUnits, maxUint256, PublicActions, WalletClient } from "viem";
 import { useKeystore } from '../keystore';
 import { useWallet } from '../wallet';
 import { ERC20_ABI, LINEA_SEPOLIA_CONFIG, ensureLineaSepoliaNetwork } from '../../utils/network';
@@ -58,8 +58,7 @@ export function RLNProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Get the signer from window.ethereum
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
+  const [signer, setSigner] = useState<WalletClient & PublicActions | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [rateMinLimit, setRateMinLimit] = useState<number>(0);
   const [rateMaxLimit, setRateMaxLimit] = useState<number>(0);
@@ -82,24 +81,13 @@ export function RLNProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkWallet = async () => {
       try {
-        if (window.ethereum) {
-          const provider = new ethers.providers.Web3Provider(window.ethereum);
-          const accounts = await provider.listAccounts();
-          
-          if (accounts.length > 0) {
-            const signer = provider.getSigner();
-            setSigner(signer);
-            setIsConnected(true);
-            return;
-          }
-        }
-        
-        setSigner(null);
-        setIsConnected(false);
-      } catch (err) {
+        const signer = await createViemClientFromWindow();
+        setSigner(signer);
+        setIsConnected(true);
+      } catch(err) {
         console.error("Error checking wallet:", err);
         setSigner(null);
-        setIsConnected(false);
+        setIsConnected(false); 
       }
     };
     
@@ -155,7 +143,7 @@ export function RLNProvider({ children }: { children: ReactNode }) {
       if (currentRln && !isStarted) {
         console.log("Starting RLN with signer...");
         try {
-          await currentRln.start({ signer }); 
+          await currentRln.start({ walletClient: signer }); 
           setIsStarted(true);
           console.log("RLN started successfully.");
   
@@ -170,31 +158,6 @@ export function RLNProvider({ children }: { children: ReactNode }) {
               } else {
                 console.warn("Could not fetch rate limits: undefined values returned.");
               }
-
-              // Get and log the token address from the contract
-              try {
-                const priceInfo = await currentRln.contract.getPriceForRateLimit(300);
-                if (priceInfo && priceInfo.token) {
-                  console.log("🪙 Token address from RLN contract:", priceInfo.token);
-                  console.log("🪙 Hardcoded token address:", WAKU_TESTNET_TOKEN_ADDRESS);
-                  console.log("🪙 Addresses match:", priceInfo.token.toLowerCase() === WAKU_TESTNET_TOKEN_ADDRESS.toLowerCase());
-                  
-                  // Check balance using the RLN contract's token address
-                  const userAddress = await signer.getAddress();
-                  const rlnTokenContract = new ethers.Contract(priceInfo.token, ERC20_ABI, signer);
-                  const rlnTokenBalance = await rlnTokenContract.balanceOf(userAddress);
-                  console.log("💰 Balance from RLN token contract:", ethers.utils.formatUnits(rlnTokenBalance, 18), "tokens");
-                  
-                  // Also check balance using hardcoded address for comparison
-                  const hardcodedTokenContract = new ethers.Contract(WAKU_TESTNET_TOKEN_ADDRESS, ERC20_ABI, signer);
-                  const hardcodedTokenBalance = await hardcodedTokenContract.balanceOf(userAddress);
-                  console.log("💰 Balance from hardcoded token contract:", ethers.utils.formatUnits(hardcodedTokenBalance, 18), "tokens");
-                } else {
-                  console.warn("Could not get token address from RLN contract");
-                }
-              } catch (tokenErr) {
-                console.warn("Error getting token address from RLN contract:", tokenErr);
-              }
             } catch (limitErr) {
               console.warn("Could not fetch rate limits after start:", limitErr);
               // Don't fail initialization for this, but log it.
@@ -207,24 +170,24 @@ export function RLNProvider({ children }: { children: ReactNode }) {
           console.error("Error starting RLN:", startErr);
           
           // Check if it's a network mismatch error
-          if (startErr instanceof Error && startErr.message.includes('chain ID of contract is different')) {
-            console.log("Network mismatch detected, attempting to switch to Linea Sepolia...");
+          // if (startErr instanceof Error && startErr.message.includes('chain ID of contract is different')) {
+          //   console.log("Network mismatch detected, attempting to switch to Linea Sepolia...");
             
-            try {
-              const switched = await ensureLineaSepoliaNetwork(signer);
-              if (switched) {
-                setError('Network switched to Linea Sepolia. Please try connecting again.');
-                // Don't retry automatically to avoid loops, let user re-trigger
-              } else {
-                setError('Please manually switch to Linea Sepolia network in MetaMask and try again.');
-              }
-            } catch (switchErr) {
-              console.error("Error switching network:", switchErr);
-              setError('Failed to switch to Linea Sepolia network. Please switch manually in MetaMask.');
-            }
-          } else {
-            setError(startErr instanceof Error ? startErr.message : 'Failed to start RLN');
-          }
+          //   try {
+          //     const switched = await ensureLineaSepoliaNetwork(walletClient);
+          //     if (switched) {
+          //       setError('Network switched to Linea Sepolia. Please try connecting again.');
+          //       // Don't retry automatically to avoid loops, let user re-trigger
+          //     } else {
+          //       setError('Please manually switch to Linea Sepolia network in MetaMask and try again.');
+          //     }
+          //   } catch (switchErr) {
+          //     console.error("Error switching network:", switchErr);
+          //     setError('Failed to switch to Linea Sepolia network. Please switch manually in MetaMask.');
+          //   }
+          // } else {
+          //   setError(startErr instanceof Error ? startErr.message : 'Failed to start RLN');
+          // }
           
           setIsStarted(false); 
         }
@@ -244,7 +207,7 @@ export function RLNProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     console.log('Auto-init check:', {
       isConnected,
-      hasSigner: !!signer,
+      hasWalletClient: !!signer,
       isInitialized,
       isStarted,
       isLoading
@@ -324,7 +287,7 @@ export function RLNProvider({ children }: { children: ReactNode }) {
     setTokenApprovalStatus(prev => ({ ...prev, isChecking: true }));
 
     try {
-      const userAddress = await signer.getAddress();
+      const [userAddress] = await signer.getAddresses();
       const contractAddress = rln.contract.address;
 
       // Use the hardcoded token address consistently
@@ -333,43 +296,50 @@ export function RLNProvider({ children }: { children: ReactNode }) {
       // Get price info from RLN contract
       const priceInfo = await rln.contract.getPriceForRateLimit(rateLimit);
 
-      // Create token contract instance
-      const tokenContract = new ethers.Contract(
-        tokenAddress,
-        ERC20_ABI,
-        signer
-      );
       if (!priceInfo.price) {
         throw new Error("Unable to determine required deposit amount");
       }
 
       const requiredAmount = priceInfo.price;
-      const currentAllowance = await tokenContract.allowance(userAddress, contractAddress);
+      
+      // Read current allowance from token contract
+      const currentAllowance = await signer.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'allowance',
+        args: [userAddress, contractAddress as `0x${string}`],
+      }) as bigint;
       
       // Check actual token balance directly from the contract
-      const actualTokenBalance = await tokenContract.balanceOf(userAddress);
-      const tokenBalanceStr = ethers.utils.formatUnits(actualTokenBalance, 18);
+      const actualTokenBalance = await signer.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'balanceOf',
+        args: [userAddress],
+      }) as bigint;
+      
+      const tokenBalanceStr = formatUnits(actualTokenBalance, 18);
       const tokenBalance = actualTokenBalance;
 
       console.log("Token approval check:", {
-        requiredAmount: ethers.utils.formatUnits(requiredAmount, 18),
-        currentAllowance: ethers.utils.formatUnits(currentAllowance, 18),
+        requiredAmount: formatUnits(requiredAmount, 18),
+        currentAllowance: formatUnits(currentAllowance, 18),
         tokenBalance: tokenBalanceStr,
         tokenAddress: tokenAddress,
         userAddress: userAddress,
         contractAddress: contractAddress
       });
 
-      const isApproved = currentAllowance.gte(requiredAmount);
+      const isApproved = currentAllowance >= requiredAmount;
       const needsApproval = !isApproved;
-      const hasEnoughBalance = tokenBalance.gte(requiredAmount);
+      const hasEnoughBalance = tokenBalance >= requiredAmount;
 
       setTokenApprovalStatus({
         isApproved,
         isChecking: false,
         needsApproval,
-        requiredAmount: ethers.utils.formatUnits(requiredAmount, 18),
-        currentAllowance: ethers.utils.formatUnits(currentAllowance, 18),
+        requiredAmount: formatUnits(requiredAmount, 18),
+        currentAllowance: formatUnits(currentAllowance, 18),
         tokenBalance: tokenBalanceStr,
         hasEnoughBalance,
       });
@@ -393,42 +363,47 @@ export function RLNProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const userAddress = await signer.getAddress();
+      const [userAddress] = await signer.getAddresses();
       const contractAddress = rln.contract.address;
 
       // Use the hardcoded token address consistently
       const tokenAddress = WAKU_TESTNET_TOKEN_ADDRESS;
 
-      // Create token contract instance
-      const tokenContract = new ethers.Contract(
-        tokenAddress,
-        ERC20_ABI,
-        signer
-      );
-
       // Approve maximum amount for convenience
-      const approvalAmount = ethers.constants.MaxUint256;
+      const approvalAmount = maxUint256;
       
-      const approveTx = await tokenContract.approve(contractAddress, approvalAmount);
-      console.log("Approval transaction submitted:", approveTx.hash);
+        const hash = await signer.writeContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'approve',
+        args: [contractAddress as `0x${string}`, approvalAmount],
+        chain: signer.chain,
+        account: userAddress,
+      });
+      console.log("Approval transaction submitted:", hash);
       
       // Update status to show approval in progress
       setTokenApprovalStatus(prev => ({ ...prev, isChecking: true }));
       
       // Wait for the transaction to be mined
-      const receipt = await approveTx.wait(2);
+      const receipt = await signer.waitForTransactionReceipt({ hash, confirmations: 2 });
       console.log("Token approval confirmed in block:", receipt.blockNumber);
       
       // Update approval status
-      const newAllowance = await tokenContract.allowance(userAddress, contractAddress);
-      const isApproved = newAllowance.gt(0);
+      const newAllowance = await signer.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'allowance',
+        args: [userAddress, contractAddress as `0x${string}`],
+      }) as bigint;
+      const isApproved = newAllowance > BigInt(0);
       
       setTokenApprovalStatus(prev => ({
         ...prev,
         isApproved,
         isChecking: false,
         needsApproval: !isApproved,
-        currentAllowance: ethers.utils.formatUnits(newAllowance, 18),
+        currentAllowance: formatUnits(newAllowance, 18),
       }));
 
       return { success: true };
@@ -452,7 +427,7 @@ export function RLNProvider({ children }: { children: ReactNode }) {
     }
     
     if (!signer) {
-      return { success: false, error: 'No signer available' };
+      return { success: false, error: 'Wallet not connected' };
     }
     
     try {
@@ -472,7 +447,7 @@ export function RLNProvider({ children }: { children: ReactNode }) {
       }
       
       // Get user address and contract address
-      const userAddress = await signer.getAddress();
+      const [userAddress] = await signer.getAddresses();
       
       if (!rln.contract || !rln.contract.address) {
         return { success: false, error: "RLN contract address not available. Cannot proceed with registration." };
@@ -483,18 +458,11 @@ export function RLNProvider({ children }: { children: ReactNode }) {
       // Use the hardcoded token address consistently
       const tokenAddress = WAKU_TESTNET_TOKEN_ADDRESS;
       
-      // Create token contract instance
-      const tokenContract = new ethers.Contract(
-        tokenAddress,
-        ERC20_ABI,
-        signer
-      );
-      
       // Check balance from wallet context
       const tokenBalanceStr = wttBalance || "0";
-      const tokenBalance = ethers.utils.parseUnits(tokenBalanceStr, 18);
+      const tokenBalance = parseUnits(tokenBalanceStr, 18);
       
-      if (tokenBalance.isZero()) {
+      if (tokenBalance === BigInt(0)) {
         return { 
           success: false, 
           error: `You need tokens to register a membership. Your balance is ${tokenBalanceStr} WTT. Please get test tokens.` 
@@ -509,36 +477,53 @@ export function RLNProvider({ children }: { children: ReactNode }) {
           return { success: false, error: "Unable to determine deposit amount for rate limit" };
         }
         requiredDeposit = priceInfo.price;
-        console.log("Required deposit:", ethers.utils.formatUnits(requiredDeposit, 18), "WTT");
+        console.log("Required deposit:", formatUnits(requiredDeposit, 18), "WTT");
       } catch (priceErr) {
         console.error("Error getting price for rate limit:", priceErr);
         return { success: false, error: "Failed to determine required deposit amount" };
       }
       
       // Check and approve token allowance
-      const currentAllowance = await tokenContract.allowance(userAddress, contractAddress);
-      console.log("Current allowance:", ethers.utils.formatUnits(currentAllowance, 18), "WTT");
-      console.log("Required deposit:", ethers.utils.formatUnits(requiredDeposit, 18), "WTT");
+      const currentAllowance = await signer.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'allowance',
+        args: [userAddress, contractAddress as `0x${string}`],
+      }) as bigint;
+      console.log("Current allowance:", formatUnits(currentAllowance, 18), "WTT");
+      console.log("Required deposit:", formatUnits(requiredDeposit, 18), "WTT");
       
-      if (currentAllowance.lt(requiredDeposit)) {
+      if (currentAllowance < requiredDeposit) {
         console.log("Insufficient allowance, requesting token approval...");
         
         // Approve the required amount plus a buffer (or max uint256 for simplicity)
-        const approvalAmount = ethers.constants.MaxUint256;
+        const approvalAmount = maxUint256;
         
         try {
-          const approveTx = await tokenContract.approve(contractAddress, approvalAmount);
-          console.log("Approval transaction submitted:", approveTx.hash);
+          const hash = await signer.writeContract({
+            address: tokenAddress as `0x${string}`,
+            abi: ERC20_ABI,
+            functionName: 'approve',
+            args: [contractAddress as `0x${string}`, approvalAmount],
+            chain: signer.chain,
+            account: userAddress,
+          });
+          console.log("Approval transaction submitted:", hash);
           
           // Wait for the transaction to be mined with more confirmations
-          const receipt = await approveTx.wait(2);
+          const receipt = await signer.waitForTransactionReceipt({ hash, confirmations: 2 });
           console.log("Token approval confirmed in block:", receipt.blockNumber);
           
           // Verify the approval was successful
-          const newAllowance = await tokenContract.allowance(userAddress, contractAddress);
-          console.log("New allowance:", ethers.utils.formatUnits(newAllowance, 18), "WTT");
+          const newAllowance = await signer.readContract({
+            address: tokenAddress as `0x${string}`,
+            abi: ERC20_ABI,
+            functionName: 'allowance',
+            args: [userAddress, contractAddress as `0x${string}`],
+          }) as bigint;
+          console.log("New allowance:", formatUnits(newAllowance, 18), "WTT");
           
-          if (newAllowance.lt(requiredDeposit)) {
+          if (newAllowance < requiredDeposit) {
             return { success: false, error: "Token approval failed - insufficient allowance after approval" };
           }
         } catch (approvalErr) {
@@ -555,7 +540,7 @@ export function RLNProvider({ children }: { children: ReactNode }) {
       // Generate signature for identity
       const timestamp = Date.now();
       const message = `Sign this message to generate your RLN credentials ${timestamp}`;
-      const signature = await signer.signMessage(message);
+      const signature = await signer.signMessage({ message, account: userAddress });
       
       // Register membership
       console.log("Registering membership...");
@@ -708,14 +693,8 @@ export function RLNProvider({ children }: { children: ReactNode }) {
       // Use the hardcoded token address consistently
       const tokenAddress = WAKU_TESTNET_TOKEN_ADDRESS;
       
-      const userAddress = await signer?.getAddress();
-      
-      if (!userAddress) {
-        throw new Error('No signer available');
-      }
-      
-      // Call withdraw with token address and holder
-      await rln.contract.withdraw(tokenAddress, userAddress);
+      // Call withdraw with token address
+      await rln.contract.withdraw(tokenAddress);
       return { success: true };
     } catch (err) {
       console.error('Error withdrawing deposit:', err);
@@ -736,11 +715,10 @@ export function RLNProvider({ children }: { children: ReactNode }) {
         throw new Error('Price not available');
       }
       
-      console.log("💰 Price from RLN contract (raw BigNumber):", result.price);
+      console.log("💰 Price from RLN contract (raw):", result.price);
       console.log("💰 Price from RLN contract (toString):", result.price.toString());
-      console.log("💰 Price from RLN contract (hex):", result.price.toHexString());
       
-      const formatted = ethers.utils.formatUnits(result.price, 18);
+      const formatted = formatUnits(result.price, 18);
       console.log("💰 Price formatted to decimal:", formatted);
       
       return { price: formatted };

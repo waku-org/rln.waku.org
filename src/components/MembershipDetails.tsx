@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Copy, Clock, Trash2, Wallet } from 'lucide-react';
-import { ethers } from 'ethers';
+import { formatEther } from 'viem'
 import { MembershipState } from '@waku/rln';
 import { useRLN } from '../contexts/rln/RLNContext';
 import { toast } from 'sonner';
@@ -17,7 +17,7 @@ interface MembershipDetailsProps {
     startBlock: number;
     endBlock: number;
     state: MembershipState;
-    depositAmount: ethers.BigNumber;
+    depositAmount: bigint;
     activeDuration: number;
     gracePeriodDuration: number;
     holder: string;
@@ -273,7 +273,7 @@ export function MembershipDetails({ membershipInfo, copyToClipboard, hash }: Mem
           <div>
             <span className="text-muted-foreground text-xs">Deposit Amount:</span>
             <div className="text-accent">
-              {membershipInfo.depositAmount ? `${ethers.utils.formatEther(membershipInfo.depositAmount)} ETH` : 'N/A'}
+              {membershipInfo.depositAmount ? `${formatEther(membershipInfo.depositAmount)} ETH` : 'N/A'}
             </div>
           </div>
 
